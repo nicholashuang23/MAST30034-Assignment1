@@ -36,31 +36,22 @@ create_TC = function(interval, one_time){
     }
   
   }
+  return(TC)
 }
 ```
 
 
 ```{r}
-TC1 = matrix(0, 240, 1)
-interval = 30
-  on_time = 15
-  on_count = 1
-  off_count = 0
-for(i in 1:240){
-  
-  if(on_count <= on_time) {
-    TC1[i] = 1
-    on_count = on_count + 1
-  } else{
-    off_count = off_count + 1
-    if (off_count == interval - on_time) {
-      on_count = 1
-      off_count = 0
-    }
-  }
-  
-}
+TC1 = create_TC(30, 15)
+TC2 = create_TC(45, 20)
+TC3 = create_TC(60, 25)
+TC4 = create_TC(40, 15)
+TC5 = create_TC(40, 20)
+TC6 = create_TC(40, 25)
 ```
+
+
+
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
@@ -68,114 +59,3 @@ When you save the notebook, an HTML file containing the code and output will be 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
-function()
-
-```{r}
-TC1 = matrix(0, 240, 1)
-interval = 30
-  on_time = 15
-  on_count = 1
-  off_count = 0
-for(i in 1:240){
-  
-  if(on_count <= on_time) {
-    TC1[i] = 1
-    on_count = on_count + 1
-  } else{
-    off_count = off_count + 1
-    if (off_count == interval - on_time) {
-      on_count = 1
-      off_count = 0
-    }
-  }
-  
-}
-```
-
-```{r}
-TC1 = matrix(0, 240, 1)
-interval = 30
-  on_time = 15
-  on_count = 1
-  off_count = 0
-for(i in 1:240){
-  
-  if(on_count <= on_time) {
-    TC1[i] = 1
-    on_count = on_count + 1
-  } else{
-    off_count = off_count + 1
-    if (off_count == interval - on_time) {
-      on_count = 1
-      off_count = 0
-    }
-  }
-  
-}
-```
-
-```{r}
-TC1 = matrix(0, 240, 1)
-interval = 30
-  on_time = 15
-  on_count = 1
-  off_count = 0
-for(i in 1:240){
-  
-  if(on_count <= on_time) {
-    TC1[i] = 1
-    on_count = on_count + 1
-  } else{
-    off_count = off_count + 1
-    if (off_count == interval - on_time) {
-      on_count = 1
-      off_count = 0
-    }
-  }
-  
-}
-```
-
-```{r}
-TC1 = matrix(0, 240, 1)
-interval = 30
-  on_time = 15
-  on_count = 1
-  off_count = 0
-for(i in 1:240){
-  
-  if(on_count <= on_time) {
-    TC1[i] = 1
-    on_count = on_count + 1
-  } else{
-    off_count = off_count + 1
-    if (off_count == interval - on_time) {
-      on_count = 1
-      off_count = 0
-    }
-  }
-  
-}
-```
-
-```{r}
-TC1 = matrix(0, 240, 1)
-interval = 30
-  on_time = 15
-  on_count = 1
-  off_count = 0
-for(i in 1:240){
-  
-  if(on_count <= on_time) {
-    TC1[i] = 1
-    on_count = on_count + 1
-  } else{
-    off_count = off_count + 1
-    if (off_count == interval - on_time) {
-      on_count = 1
-      off_count = 0
-    }
-  }
-  
-}
-```
