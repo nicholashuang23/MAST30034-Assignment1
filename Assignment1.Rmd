@@ -48,7 +48,19 @@ TC3 = create_TC(60, 25)
 TC4 = create_TC(40, 15)
 TC5 = create_TC(40, 20)
 TC6 = create_TC(40, 25)
+
 ```
+
+```{r}
+standardise_TC = function(TC) {
+  TC_mean = mean(TC)
+  TC_var = var(TC)
+  TC1 = TC - TC_mean
+  TC2 = TC1 / sqrt(TC_var[1])
+  return(TC2)
+}
+```
+
 
 
 
@@ -58,4 +70,13 @@ Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by press
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+```{r}
+standard_TC1 = standardise_TC(TC1)
+standard_TC2 = standardise_TC(TC2)
+standard_TC3 = standardise_TC(TC3)
+standard_TC4 = standardise_TC(TC4)
+standard_TC5 = standardise_TC(TC5)
+standard_TC6 = standardise_TC(TC6)
+```
 
