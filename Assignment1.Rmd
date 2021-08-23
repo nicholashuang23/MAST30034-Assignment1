@@ -7,15 +7,58 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
+
 ```{r}
-plot(cars)
+create_TC = function(interval, one_time){
+  
+  # Create initial matrix
+  TC = matrix(0, 240, 1)
+  
+  # Counts for how many ones have been added / not added
+  on_count = 1
+  off_count = 0
+  
+  for(i in 1:240){
+    
+    # Change index in matrix if it is within the time period to do so 
+    # Otherwise increment the time that one has not been added
+    # Reset if at the end of a interval
+    if(on_count <= one_time) {
+      TC[i] = 1
+      on_count = on_count + 1
+    } else{
+      off_count = off_count + 1
+      if (off_count == interval - one_time) {
+        on_count = 1
+        off_count = 0
+      }
+  
+    }
+  
+  }
+}
 ```
+
+
 ```{r}
 TC1 = matrix(0, 240, 1)
+interval = 30
+  on_time = 15
+  on_count = 1
+  off_count = 0
 for(i in 1:240){
-  for(i in 1:15) {
+  
+  if(on_count <= on_time) {
     TC1[i] = 1
+    on_count = on_count + 1
+  } else{
+    off_count = off_count + 1
+    if (off_count == interval - on_time) {
+      on_count = 1
+      off_count = 0
+    }
   }
+  
 }
 ```
 
@@ -25,3 +68,114 @@ When you save the notebook, an HTML file containing the code and output will be 
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
+function()
+
+```{r}
+TC1 = matrix(0, 240, 1)
+interval = 30
+  on_time = 15
+  on_count = 1
+  off_count = 0
+for(i in 1:240){
+  
+  if(on_count <= on_time) {
+    TC1[i] = 1
+    on_count = on_count + 1
+  } else{
+    off_count = off_count + 1
+    if (off_count == interval - on_time) {
+      on_count = 1
+      off_count = 0
+    }
+  }
+  
+}
+```
+
+```{r}
+TC1 = matrix(0, 240, 1)
+interval = 30
+  on_time = 15
+  on_count = 1
+  off_count = 0
+for(i in 1:240){
+  
+  if(on_count <= on_time) {
+    TC1[i] = 1
+    on_count = on_count + 1
+  } else{
+    off_count = off_count + 1
+    if (off_count == interval - on_time) {
+      on_count = 1
+      off_count = 0
+    }
+  }
+  
+}
+```
+
+```{r}
+TC1 = matrix(0, 240, 1)
+interval = 30
+  on_time = 15
+  on_count = 1
+  off_count = 0
+for(i in 1:240){
+  
+  if(on_count <= on_time) {
+    TC1[i] = 1
+    on_count = on_count + 1
+  } else{
+    off_count = off_count + 1
+    if (off_count == interval - on_time) {
+      on_count = 1
+      off_count = 0
+    }
+  }
+  
+}
+```
+
+```{r}
+TC1 = matrix(0, 240, 1)
+interval = 30
+  on_time = 15
+  on_count = 1
+  off_count = 0
+for(i in 1:240){
+  
+  if(on_count <= on_time) {
+    TC1[i] = 1
+    on_count = on_count + 1
+  } else{
+    off_count = off_count + 1
+    if (off_count == interval - on_time) {
+      on_count = 1
+      off_count = 0
+    }
+  }
+  
+}
+```
+
+```{r}
+TC1 = matrix(0, 240, 1)
+interval = 30
+  on_time = 15
+  on_count = 1
+  off_count = 0
+for(i in 1:240){
+  
+  if(on_count <= on_time) {
+    TC1[i] = 1
+    on_count = on_count + 1
+  } else{
+    off_count = off_count + 1
+    if (off_count == interval - on_time) {
+      on_count = 1
+      off_count = 0
+    }
+  }
+  
+}
+```
