@@ -9,7 +9,7 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 
 
 ```{r}
-create_TC = function(interval, one_time){
+create_TC = function(interval, one_time, start_time){
   
   # Create initial matrix
   TC = matrix(0, 240, 1)
@@ -20,7 +20,12 @@ create_TC = function(interval, one_time){
   
   for(i in 1:240){
     
-    # Change index in matrix if it is within the time period to do so 
+    # Check if the current time in source is before our start time
+    if (i <= start_time) {
+      next
+    }
+    
+    # Change value in matrix if it is within the time period to do so 
     # Otherwise increment the time that one has not been added
     # Reset if at the end of a interval
     if(on_count <= one_time) {
@@ -42,12 +47,12 @@ create_TC = function(interval, one_time){
 
 
 ```{r}
-TC1 = create_TC(30, 15)
-TC2 = create_TC(45, 20)
-TC3 = create_TC(60, 25)
-TC4 = create_TC(40, 15)
-TC5 = create_TC(40, 20)
-TC6 = create_TC(40, 25)
+TC1 = create_TC(30, 15, 0)
+TC2 = create_TC(45, 20, 20)
+TC3 = create_TC(60, 25, 0)
+TC4 = create_TC(40, 15, 0)
+TC5 = create_TC(40, 20, 0)
+TC6 = create_TC(40, 25, 0)
 
 ```
 
@@ -78,5 +83,23 @@ standard_TC3 = standardise_TC(TC3)
 standard_TC4 = standardise_TC(TC4)
 standard_TC5 = standardise_TC(TC5)
 standard_TC6 = standardise_TC(TC6)
+```
+
+
+```{r}
+plot(standard_TC1, ylab = "Temporal source 1")
+plot(standard_TC2, ylab = "Temporal source 2")
+plot(standard_TC3, ylab = "Temporal source 3")
+plot(standard_TC4, ylab = "Temporal source 4")
+plot(standard_TC5, ylab = "Temporal source 5")
+plot(standard_TC6, ylab = "Temporal source 6")
+```
+```{r}
+full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
+correlation = cor(full_TC)
+install.packages("corrplot")
+library(corrplot)
+corrplot(correlation, tl.srt = 0)
+help(corrplot)
 ```
 
