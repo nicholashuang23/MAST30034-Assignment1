@@ -129,17 +129,30 @@ tmpSM3 = create_tmpSM(8, 13, 2, 6)
 tmpSM4 = create_tmpSM(8, 13, 15, 19)
 tmpSM5 = create_tmpSM(15, 19, 2, 6)
 tmpSM6 = create_tmpSM(15, 19, 15, 19)
-
-#install.packages("remotes")
-#remotes::install_github("klovens/pineplot")
-#library("pineplot")
-#draw_heatmap(tmpSM1)
-heatmap(tmpSM1, Colv = NA, Rowv = NA, scale="column")
-plot(tmpSM2)
-plot(tmpSM3)
-plot(tmpSM4)
-plot(tmpSM5)
-plot(tmpSM6)
 ```
+
+
+```{r}
+#heatmap(tmpSM1, Colv = NA, Rowv = NA, scale="column")
+#plot(tmpSM2)
+#plot(tmpSM3)
+#plot(tmpSM4)
+#plot(tmpSM5)
+#plot(tmpSM6)
+```
+
+
+```{r}
+tmpSM1 = matrix(tmpSM1, 1, 441)
+tmpSM1 = matrix(tmpSM2, 1, 441)
+tmpSM1 = matrix(tmpSM3, 1, 441)
+tmpSM1 = matrix(tmpSM4, 1, 441)
+tmpSM1 = matrix(tmpSM5, 1, 441)
+tmpSM1 = matrix(tmpSM6, 1, 441)
+tmpSM = matrix(c(tmpSM1, tmpSM2, tmpSM3, tmpSM4, tmpSM5, tmpSM6), 441, 6)
+tmpSM = t(tmpSM)
+```
+
+installed.packages()
 
 
