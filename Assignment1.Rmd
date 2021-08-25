@@ -6,9 +6,14 @@ output: html_notebook
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+```{r}
+install.packages("corrplot")
+library(corrplot)
+```
 
 
 ```{r}
+# 1a
 create_TC = function(interval, one_time, start_time){
   
   # Create initial matrix
@@ -47,6 +52,7 @@ create_TC = function(interval, one_time, start_time){
 
 
 ```{r}
+# 1a
 TC1 = create_TC(30, 15, 0)
 TC2 = create_TC(45, 20, 20)
 TC3 = create_TC(60, 25, 0)
@@ -57,6 +63,7 @@ TC6 = create_TC(40, 25, 0)
 ```
 
 ```{r}
+# 1a
 standardise_TC = function(TC) {
   TC_mean = mean(TC)
   TC_var = var(TC)
@@ -77,6 +84,7 @@ When you save the notebook, an HTML file containing the code and output will be 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
 ```{r}
+# 1a
 standard_TC1 = standardise_TC(TC1)
 standard_TC2 = standardise_TC(TC2)
 standard_TC3 = standardise_TC(TC3)
@@ -87,6 +95,7 @@ standard_TC6 = standardise_TC(TC6)
 
 
 ```{r}
+# 1a
 plot(standard_TC1, ylab = "Temporal source 1")
 plot(standard_TC2, ylab = "Temporal source 2")
 plot(standard_TC3, ylab = "Temporal source 3")
@@ -94,12 +103,43 @@ plot(standard_TC4, ylab = "Temporal source 4")
 plot(standard_TC5, ylab = "Temporal source 5")
 plot(standard_TC6, ylab = "Temporal source 6")
 ```
+
 ```{r}
+# 1b
 full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
 correlation = cor(full_TC)
-install.packages("corrplot")
-library(corrplot)
 corrplot(correlation, tl.srt = 0)
-help(corrplot)
+#help(corrplot)
 ```
+
+```{r}
+# 1c
+create_tmpSM = function(vert_start,vert_end, horo_start, horo_end) {
+  tmpSM = matrix(0, 21, 21)
+  tmpSM[vert_start:vert_end, horo_start:horo_end] = 1
+  return(tmpSM)
+}
+```
+
+
+```{r}
+tmpSM1 = create_tmpSM(2, 6, 2, 6)
+tmpSM2 = create_tmpSM(2, 6, 15, 19)
+tmpSM3 = create_tmpSM(8, 13, 2, 6)
+tmpSM4 = create_tmpSM(8, 13, 15, 19)
+tmpSM5 = create_tmpSM(15, 19, 2, 6)
+tmpSM6 = create_tmpSM(15, 19, 15, 19)
+
+#install.packages("remotes")
+#remotes::install_github("klovens/pineplot")
+#library("pineplot")
+#draw_heatmap(tmpSM1)
+heatmap(tmpSM1, Colv = NA, Rowv = NA, scale="column")
+plot(tmpSM2)
+plot(tmpSM3)
+plot(tmpSM4)
+plot(tmpSM5)
+plot(tmpSM6)
+```
+
 
