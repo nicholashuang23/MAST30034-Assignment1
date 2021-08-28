@@ -146,7 +146,7 @@ library(ggplot2)
 # 1c
 #ggplot(tmpSM1) + geom_tile()
 #heatmap(tmpSM1, Colv = NA, Rowv = NA, scale="column")
-plot(tmpSM2)
+#plot(tmpSM2)
 #plot(tmpSM3)
 #plot(tmpSM4)
 #plot(tmpSM5)
