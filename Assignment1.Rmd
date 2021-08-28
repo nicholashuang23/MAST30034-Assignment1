@@ -67,13 +67,13 @@ TC6 = create_TC(40, 25, 0)
 
 ```{r}
 # 1a
-standardise_TC = function(TC) {
-  TC_mean = mean(TC)
-  TC_var = var(TC)
-  TC1 = TC - TC_mean
-  TC2 = TC1 / sqrt(TC_var[1])
-  return(TC2)
-}
+#standardise_TC = function(TC) {
+#  TC_mean = mean(TC)
+#  TC_var = var(TC)
+#  TC1 = TC - TC_mean
+#  TC2 = TC1 / sqrt(TC_var[1])
+#  return(TC2)
+#}
 ```
 
 
@@ -88,12 +88,12 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 ```{r}
 # 1a
-standard_TC1 = standardise_TC(TC1)
-standard_TC2 = standardise_TC(TC2)
-standard_TC3 = standardise_TC(TC3)
-standard_TC4 = standardise_TC(TC4)
-standard_TC5 = standardise_TC(TC5)
-standard_TC6 = standardise_TC(TC6)
+standard_TC1 = scale(TC1)
+standard_TC2 = scale(TC2)
+standard_TC3 = scale(TC3)
+standard_TC4 = scale(TC4)
+standard_TC5 = scale(TC5)
+standard_TC6 = scale(TC6)
 ```
 
 
@@ -106,15 +106,17 @@ plot(standard_TC4, ylab = "Temporal source 4", pch = 1, type = "line")
 plot(standard_TC5, ylab = "Temporal source 5", pch = 1, type = "line")
 plot(standard_TC6, ylab = "Temporal source 6", pch = 1, type = "line")
 
-
+# Still need to answer why nnot norm instead of standardize
 ```
 
 ```{r}
 # 1b
 full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
 correlation = cor(full_TC)
-corrplot(correlation, tl.srt = 0)
+corrplot(correlation, tl.srt = 0, method = "number", sig.level = 0.01)
 #help(corrplot)
+
+# Comment on if on TC correlation or not
 ```
 ```{r}
 help("heatmap")
@@ -169,6 +171,7 @@ tmpSM = t(tmpSM)
 correlation2 = cor(t(tmpSM))
 corrplot(correlation2, tl.srt = 0)
 correlation2
+# Are theres SM all independent? Why standardisation not important - imagine one slice is 5 pixels and another 1pixel
 ```
 
 
@@ -186,14 +189,16 @@ corrplot(correlation3, tl.srt = 0)
 
 correlation4 = cor(t(noise_s))
 corrplot(correlation4, tl.srt = 0)
+# Check if these two above are correlated
 
 
 hist(noise_s)
 hist(noise_t)
+# Check whether fills var of 1.96*sd (0.95 data)
 
 correlation5 = cor(noise_t %*% noise_s)
 corrplot(correlation5, tl.srt = 0)
-
+# Check if correlated across 441
 ```
 
 
@@ -213,39 +218,60 @@ ggplot(data, aes(X, Y, fill= Z)) +
 t
 ```
 ```{r}
-X = (full_TC + noise_t) %*% (tmpSM + noise_s)
-set.seed(1)
-mysample <- sample(length(X), 100)
-mysample
+#1e
 
-X[mysample]
-#dogy = colVars(X)
-#plot(dogy)
+#Can full_tc%*% noise_S and vice versa exist and what happens to them as if we keep we cannot fit model?
+X = (full_TC + noise_t) %*% (tmpSM + noise_s)
+
+
+# Plot graph of sample Time series
+set.seed(1)
+mysample <- sample(nrow(X), 100)
+mysample
+plot(sample, type = "line")
+sample = X[mysample,1:ncol(X)]
+str(sample)
+
+
+
+# What info does the plot of vars give
+dogy = colVars(X)
+plot(dogy)
 scaled_X = scale(X)
 ```
 
 
 ```{r}
 #2a
-A = solve(t(full_TC) %*% full_TC) %*% t(full_TC) %*% scaled_X
-D_LSR = scaled_X%*% t(A)
+A_LSR = solve(t(full_TC) %*% full_TC) %*% t(full_TC) %*% scaled_X
+D_LSR = scaled_X%*% t(A_LSR)
 
-#First column
+#  Plot and heatmap together
 plot(D_LSR[1:nrow(D_LSR),1], type = "line")
 
-heatmap(matrix(A[1,1:ncol(A)], 21, 21), ncol, Colv = NA, Rowv = NA, scale="column")
+# produce legend for heatmap
+heatmap(matrix(A[1,1:ncol(A_LSR)], 21, 21), ncol, Colv = NA, Rowv = NA, scale="column")
 
+
+# WHy linear relo bet 3rd col d_lsr and 30th of X
 #linear relo - 
 plot(D_LSR[1:nrow(D_LSR), 3], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column of D(LSR)", ylab = "30th column of scaled X")
 
 # No linear relo
 plot(D_LSR[1:nrow(D_LSR), 4], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column of D(LSR)", ylab = "30th column of scaled X")
 ```
+
+
 ```{r}
 #2b
+lamda = 0.5
+A_RR = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * lamda) %*% t(full_TC) %*% scaled_X
 
-  
+D_RR = scaled_X%*% t(A_RR)
 
+RR_corr = cor(D_RR, full_TC)
+LSR_corr = cor(D_LSR, full_TC)
+max.col(RR_corr)
 ```
 
 
