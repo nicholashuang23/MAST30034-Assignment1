@@ -11,6 +11,7 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 library(corrplot)
 install.packages("Rfast")
 library(Rfast)
+install.packages("phyloseq")
 ```
 
 
@@ -218,9 +219,33 @@ mysample <- sample(length(X), 100)
 mysample
 
 X[mysample]
-dogy = colVars(X)
-plot(dogy)
+#dogy = colVars(X)
+#plot(dogy)
 scaled_X = scale(X)
+```
+
+
+```{r}
+#2a
+A = solve(t(full_TC) %*% full_TC) %*% t(full_TC) %*% scaled_X
+D_LSR = scaled_X%*% t(A)
+
+#First column
+plot(D_LSR[1:nrow(D_LSR),1], type = "line")
+
+heatmap(matrix(A[1,1:ncol(A)], 21, 21), ncol, Colv = NA, Rowv = NA, scale="column")
+
+#linear relo - 
+plot(D_LSR[1:nrow(D_LSR), 3], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column of D(LSR)", ylab = "30th column of scaled X")
+
+# No linear relo
+plot(D_LSR[1:nrow(D_LSR), 4], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column of D(LSR)", ylab = "30th column of scaled X")
+```
+```{r}
+#2b
+
+  
+
 ```
 
 
