@@ -12,6 +12,10 @@ library(corrplot)
 install.packages("Rfast")
 library(Rfast)
 install.packages("phyloseq")
+install.packages("glmnet")
+library(glmnet)
+install.packages("randcorr")
+library(randcorr)
 ```
 
 
@@ -88,39 +92,47 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 ```{r}
 # 1a
-standard_TC1 = scale(TC1)
-standard_TC2 = scale(TC2)
-standard_TC3 = scale(TC3)
-standard_TC4 = scale(TC4)
-standard_TC5 = scale(TC5)
-standard_TC6 = scale(TC6)
+#standard_TC1 = scale(TC1)
+#standard_TC2 = scale(TC2)
+#standard_TC3 = scale(TC3)
+#standard_TC4 = scale(TC4)
+#standard_TC5 = scale(TC5)
+#standard_TC6 = scale(TC6)
+#full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
+full_TC = matrix(c(TC1, TC2, TC3, TC4, TC5, TC6), 240, 6)
+full_TC = scale(full_TC)
+
 ```
 
 
 ```{r}
-# 1a
-plot(standard_TC1, ylab = "Temporal source 1", pch = 1, type = "line")
-plot(standard_TC2, ylab = "Temporal source 2", pch = 1, type = "line")
-plot(standard_TC3, ylab = "Temporal source 3", pch = 1, type = "line")
-plot(standard_TC4, ylab = "Temporal source 4", pch = 1, type = "line")
-plot(standard_TC5, ylab = "Temporal source 5", pch = 1, type = "line")
-plot(standard_TC6, ylab = "Temporal source 6", pch = 1, type = "line")
+par(mfrow=c(6,1))
+plot(full_TC[1:nrow(full_TC), 1], ylab = "Temporal source 1", pch = 1, type = "line")
+plot(full_TC[1:nrow(full_TC), 2], ylab = "Temporal source 2", pch = 1, type = "line")
+plot(full_TC[1:nrow(full_TC), 3], ylab = "Temporal source 3", pch = 1, type = "line")
+plot(full_TC[1:nrow(full_TC), 4], ylab = "Temporal source 4", pch = 1, type = "line")
+plot(full_TC[1:nrow(full_TC), 5], ylab = "Temporal source 5", pch = 1, type = "line")
+plot(full_TC[1:nrow(full_TC), 6], ylab = "Temporal source 6", pch = 1, type = "line")
 
-# Still need to answer why nnot norm instead of standardize
+# Still need to answer why not norm instead of standardize
 ```
 
 ```{r}
 # 1b
-full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
+
 correlation = cor(full_TC)
-corrplot(correlation, tl.srt = 0, method = "number", sig.level = 0.01)
-#help(corrplot)
+
+
+
+
+corrplot.mixed(correlation, tl.srt = 0, upper = 'color')
+
+
+#col1 = colorRampPalette(c('#7F0000', 'red', '#FF7F00', 'yellow', 'white',
+                           'cyan', '#007FFF', 'blue', '#00007F'))
+#corrplot(randcorr(6), tl.srt = 0, method = 'color', sig.level = 0.01, col = col1(10))
 
 # Comment on if on TC correlation or not
-```
-```{r}
-help("heatmap")
-correlation
 ```
 
 ```{r}
@@ -264,14 +276,79 @@ plot(D_LSR[1:nrow(D_LSR), 4], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column
 
 ```{r}
 #2b
-lamda = 0.5
-A_RR = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * lamda) %*% t(full_TC) %*% scaled_X
+lowest_total = 1000000000
+ideal_lamda = 0
+V = 441
+MSE = matrix(0, 1, 2)
+for (num in seq(from = 0, to = 1, by = 0.01)) {
+  lamda = num
+  lamda_hat = lamda * V
+  A_RR = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * lamda_hat) %*% t(full_TC) %*% scaled_X
+  mse = (sum(scaled_X - full_TC %*% A_RR))^2 + lamda_hat * sum(A_RR^2)
+  MSE = rbind(MSE, c(lamda, mse))
+}
+
+plot(MSE[2:nrow(MSE), 1], MSE[2:nrow(MSE), 2])
+min(MSE[2:nrow(MSE), 2])
+
+# Need to find a way to choose the best lamda val
+cv <- cv.glmnet(as.matrix(full_TC), as.matrix(scaled_X), alpha = 0)
+#
+
+
+
 
 D_RR = scaled_X%*% t(A_RR)
-
 RR_corr = cor(D_RR, full_TC)
 LSR_corr = cor(D_LSR, full_TC)
+
+# Upon inspection, largest aboslute correlations are the diagonal values
 max.col(RR_corr)
+max.col(LSR_corr)
+c_tlsr = sum(abs(diag(RR_corr)))
+c_trr = sum(abs(diag(LSR_corr)))
+
+c_trr - c_tlsr
+
+lamda = 1000
+lamda_hat = lamda * V
+A_1000 = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * lamda_hat) %*% t(full_TC) %*% scaled_X
+
+
+# As A_LSR decrease, A_RR values decrease. But not exactly that close to 0 as some -0.32
+plot(A_1000[1:nrow(A_1000), 1], A_LSR[1:nrow(A_LSR), 1], xlab = "A_RR", ylab = "A_LSR")
+
+```
+```{r}
+rho = 0.5
+N = 240
+x1 = 21
+x2 = 21
+nsrcs = 6
+step <- 1/(norm(full_TC %*% t(full_TC)) * 1.1)
+thr <- rho*N*step
+Ao <- matrix(0, nsrcs, 1)
+A <- matrix(0, nsrcs, 1)
+Alr <- matrix(0, nsrcs, x1*x2)
+
+for (k in 1:(x1*x2)) {
+  A <- Ao+step*(t(full_TC) %*% (X[,k]-(full_TC%*%Ao)))
+  A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
+  
+  for (i in 1:10) {
+    Ao <- A
+    A <- Ao+step * (t(full_TC)%*%(X[,k]-(full_TC%*%Ao)))
+    A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
+  }
+  Alr[,k] <- A
+}
+```
+
+```{r}
+asdfafaf = matrix(c(1, 2, 3, 4, 6, 2, 7, 1, 8), 3, 3)
+asdfafaf
+sum(asdfafaf^2)
+
 ```
 
 
