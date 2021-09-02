@@ -141,6 +141,7 @@ create_tmpSM = function(vert_start,vert_end, horo_start, horo_end) {
   tmpSM = matrix(0, 21, 21)
   tmpSM[vert_start:vert_end, horo_start:horo_end] = 1
   return(tmpSM)
+  #comment
 }
 ```
 
