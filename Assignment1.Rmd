@@ -7,7 +7,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 ```{r}
-#install.packages("corrplot")
+install.packages("corrplot")
 library(corrplot)
 install.packages("Rfast")
 library(Rfast)
@@ -92,21 +92,22 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 ```{r}
 # 1a
-#standard_TC1 = scale(TC1)
-#standard_TC2 = scale(TC2)
-#standard_TC3 = scale(TC3)
-#standard_TC4 = scale(TC4)
-#standard_TC5 = scale(TC5)
-#standard_TC6 = scale(TC6)
-#full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
-full_TC = matrix(c(TC1, TC2, TC3, TC4, TC5, TC6), 240, 6)
-full_TC = scale(full_TC)
+standard_TC1 = scale(TC1)
+standard_TC2 = scale(TC2)
+standard_TC3 = scale(TC3)
+standard_TC4 = scale(TC4)
+standard_TC5 = scale(TC5)
+standard_TC6 = scale(TC6)
+full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
+#full_TC2 = matrix(c(TC1, TC2, TC3, TC4, TC5, TC6), 240, 6)
+#full_TC2 = scale(full_TC)
+
+
 
 ```
 
 
 ```{r}
-par(mfrow=c(6,1))
 plot(full_TC[1:nrow(full_TC), 1], ylab = "Temporal source 1", pch = 1, type = "line")
 plot(full_TC[1:nrow(full_TC), 2], ylab = "Temporal source 2", pch = 1, type = "line")
 plot(full_TC[1:nrow(full_TC), 3], ylab = "Temporal source 3", pch = 1, type = "line")
@@ -121,11 +122,7 @@ plot(full_TC[1:nrow(full_TC), 6], ylab = "Temporal source 6", pch = 1, type = "l
 # 1b
 
 correlation = cor(full_TC)
-
-
-
-
-corrplot.mixed(correlation, tl.srt = 0, upper = 'color')
+corrplot.mixed(correlation, tl.srt = 0)
 
 
 #col1 = colorRampPalette(c('#7F0000', 'red', '#FF7F00', 'yellow', 'white',
@@ -133,6 +130,7 @@ corrplot.mixed(correlation, tl.srt = 0, upper = 'color')
 #corrplot(randcorr(6), tl.srt = 0, method = 'color', sig.level = 0.01, col = col1(10))
 
 # Comment on if on TC correlation or not
+# 4/5, 5/6 highly correlated as size of circle is size of correlation and relatively positvely correlated
 ```
 
 ```{r}
@@ -156,17 +154,57 @@ tmpSM5 = create_tmpSM(15, 19, 2, 6)
 tmpSM6 = create_tmpSM(15, 19, 15, 19)
 ```
 
+```{r}
+create_df = function(vert_start,vert_end, horo_start, horo_end) {
+  df1 = expand.grid(seq_len(21), seq_len(21))
+  tmp = matrix(0,21,21)
+  tmp[vert_start:vert_end, horo_start:horo_end] = 1
+  column = as.vector(tmp)
+  df1$data = (column)
+  return(df1)
+}
+plot1 = create_df(2, 6, 2, 6)
+plot2 = create_df(2, 6, 15, 19)
+plot3 = create_df(8, 13, 2, 6)
+plot4 = create_df(8, 13, 15, 19)
+plot5 = create_df(15, 19, 2, 6)
+plot6 = create_df(15, 19, 15, 19)
+
+ggplot(plot1, aes(Var1, Var2, fill= data)) + 
+  geom_tile()
+
+ggplot(plot2, aes(Var1, Var2, fill= data)) + 
+  geom_tile()
+ggplot(plot3, aes(Var1, Var2, fill= data)) + 
+  geom_tile()
+ggplot(plot4, aes(Var1, Var2, fill= data)) + 
+  geom_tile()
+ggplot(plot5, aes(Var1, Var2, fill= data)) + 
+  geom_tile()
+ggplot(plot6, aes(Var1, Var2, fill= data)) + 
+  geom_tile()
+
+
+```
+
 
 ```{r}
 library(ggplot2)
 # 1c
-#ggplot(tmpSM1) + geom_tile()
-#heatmap(tmpSM1, Colv = NA, Rowv = NA, scale="column")
-#plot(tmpSM2)
+as.data.frame(tmpSM1)
+ggplot(tmpSM1) + geom_tile()
+
+
 #plot(tmpSM3)
 #plot(tmpSM4)
 #plot(tmpSM5)
 #plot(tmpSM6)
+```
+```{r}
+qwe <- LETTERS[1:20]
+qwer <- paste0("var", seq(1,20))
+data <- expand.grid(X=qwe, Y=qwer)
+data$Z <- runif(400, 0, 5)
 ```
 
 
@@ -306,8 +344,8 @@ LSR_corr = cor(D_LSR, full_TC)
 # Upon inspection, largest aboslute correlations are the diagonal values
 max.col(RR_corr)
 max.col(LSR_corr)
-c_tlsr = sum(abs(diag(RR_corr)))
-c_trr = sum(abs(diag(LSR_corr)))
+c_tlsr = sum(abs(diag(LSR_corr)))
+c_trr = sum(abs(diag(RR_corr)))
 
 c_trr - c_tlsr
 
@@ -321,6 +359,7 @@ plot(A_1000[1:nrow(A_1000), 1], A_LSR[1:nrow(A_LSR), 1], xlab = "A_RR", ylab = "
 
 ```
 ```{r}
+#2c
 rho = 0.5
 N = 240
 x1 = 21
@@ -341,6 +380,7 @@ for (k in 1:(x1*x2)) {
     A <- Ao+step * (t(full_TC)%*%(X[,k]-(full_TC%*%Ao)))
     A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
   }
+  MSE(kk,rr) = sum(sum((Y=Dlr*Alr).ˆ2))/(N*V)
   Alr[,k] <- A
 }
 ```
