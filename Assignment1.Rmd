@@ -7,15 +7,18 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 ```{r}
-install.packages("corrplot")
-library(corrplot)
-install.packages("Rfast")
-library(Rfast)
-install.packages("phyloseq")
-install.packages("glmnet")
-library(glmnet)
-install.packages("randcorr")
+#install.packages("corrplot")
+#install.packages("Rfast")
+#install.packages("phyloseq")
+#install.packages("glmnet")
+#install.packages("randcorr")
+install.packages("hrbrthemes")
 library(randcorr)
+library(ggplot2)
+library(hrbrthemes)
+library(glmnet)
+library(Rfast)
+library(corrplot)
 ```
 
 
@@ -108,6 +111,8 @@ full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, stand
 
 
 ```{r}
+# 1a
+
 plot(full_TC[1:nrow(full_TC), 1], ylab = "Temporal source 1", pch = 1, type = "line")
 plot(full_TC[1:nrow(full_TC), 2], ylab = "Temporal source 2", pch = 1, type = "line")
 plot(full_TC[1:nrow(full_TC), 3], ylab = "Temporal source 3", pch = 1, type = "line")
@@ -139,7 +144,6 @@ create_tmpSM = function(vert_start,vert_end, horo_start, horo_end) {
   tmpSM = matrix(0, 21, 21)
   tmpSM[vert_start:vert_end, horo_start:horo_end] = 1
   return(tmpSM)
-  #comment
 }
 ```
 
@@ -171,68 +175,57 @@ plot5 = create_df(15, 19, 2, 6)
 plot6 = create_df(15, 19, 15, 19)
 
 ggplot(plot1, aes(Var1, Var2, fill= data)) + 
-  geom_tile()
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
 
 ggplot(plot2, aes(Var1, Var2, fill= data)) + 
-  geom_tile()
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
+
 ggplot(plot3, aes(Var1, Var2, fill= data)) + 
-  geom_tile()
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
+
 ggplot(plot4, aes(Var1, Var2, fill= data)) + 
-  geom_tile()
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
+
 ggplot(plot5, aes(Var1, Var2, fill= data)) + 
-  geom_tile()
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
+
 ggplot(plot6, aes(Var1, Var2, fill= data)) + 
-  geom_tile()
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
 
 
 ```
-
-
-```{r}
-library(ggplot2)
-# 1c
-as.data.frame(tmpSM1)
-ggplot(tmpSM1) + geom_tile()
-
-
-#plot(tmpSM3)
-#plot(tmpSM4)
-#plot(tmpSM5)
-#plot(tmpSM6)
-```
-```{r}
-qwe <- LETTERS[1:20]
-qwer <- paste0("var", seq(1,20))
-data <- expand.grid(X=qwe, Y=qwer)
-data$Z <- runif(400, 0, 5)
-```
-
-
 ```{r}
 # 1c
 tmpSM1 = matrix(tmpSM1, 1, 441)
-tmpSM1 = matrix(tmpSM2, 1, 441)
-tmpSM1 = matrix(tmpSM3, 1, 441)
-tmpSM1 = matrix(tmpSM4, 1, 441)
-tmpSM1 = matrix(tmpSM5, 1, 441)
-tmpSM1 = matrix(tmpSM6, 1, 441)
+tmpSM2 = matrix(tmpSM2, 1, 441)
+tmpSM3 = matrix(tmpSM3, 1, 441)
+tmpSM4 = matrix(tmpSM4, 1, 441)
+tmpSM5 = matrix(tmpSM5, 1, 441)
+tmpSM6 = matrix(tmpSM6, 1, 441)
 tmpSM = matrix(c(tmpSM1, tmpSM2, tmpSM3, tmpSM4, tmpSM5, tmpSM6), 441, 6)
 tmpSM = t(tmpSM)
 
 correlation2 = cor(t(tmpSM))
-corrplot(correlation2, tl.srt = 0)
+corrplot.mixed(correlation2, upper = "number")
 correlation2
-# Are theres SM all independent? Why standardisation not important - imagine one slice is 5 pixels and another 1pixel
+# Are theres SM all independent? - yes as not correlated
+# Why standardisation not important - imagine one slice is 5 pixels and another 1pixel
 ```
 
 
 ```{r}
 #1d
-noise_t = rnorm(6 * 240, mean = 0, sd = 0.25)
-noise_s = rnorm(6 * 441, mean = 0, sd = 0.15)
+noise_t = rnorm(6 * 240, mean = 0, sd = sqrt(0.25))
+noise_s = rnorm(6 * 441, mean = 0, sd = sqrt(0.15))
 
-noise_s = matrix(noise_t, 6, 441)
-noise_t = matrix(noise_s, 240, 6)
+noise_s = matrix(noise_s, 6, 441)
+noise_t = matrix(noise_t, 240, 6)
 
 correlation3 = cor(noise_t)
 corrplot(correlation3, tl.srt = 0)
@@ -241,32 +234,20 @@ corrplot(correlation3, tl.srt = 0)
 correlation4 = cor(t(noise_s))
 corrplot(correlation4, tl.srt = 0)
 # Check if these two above are correlated
+# Highest is like abs(0.12,0.15) so not really that strongly correlated
 
 
 hist(noise_s)
 hist(noise_t)
+# noise s looks way more normally distributed, while t looks kinda skewed.
+# do conf int to normal dist
 # Check whether fills var of 1.96*sd (0.95 data)
 
 correlation5 = cor(noise_t %*% noise_s)
-corrplot(correlation5, tl.srt = 0)
+#corrplot(correlation5, tl.srt = 0)
+correlation5[1:10, 1:10]
+# Definitely some correlation eg higher covariance values such as 0.7
 # Check if correlated across 441
-```
-
-
-```{r}
-x <- LETTERS[1:20]
-y <- paste0("var", seq(1,20))
-data <- expand.grid(X=x, Y=y)
-data$Z <- runif(400, 0, 5)
-
-x
-y
-data
-
-ggplot(data, aes(X, Y, fill= Z)) + 
-  geom_tile()
-
-t
 ```
 ```{r}
 #1e
@@ -279,9 +260,10 @@ X = (full_TC + noise_t) %*% (tmpSM + noise_s)
 set.seed(1)
 mysample <- sample(nrow(X), 100)
 mysample
-plot(sample, type = "line")
 sample = X[mysample,1:ncol(X)]
-str(sample)
+plot(sample[1, 1:ncol(X)], type = "line")
+line(sample[2, 1:ncol(X)])
+
 
 
 
