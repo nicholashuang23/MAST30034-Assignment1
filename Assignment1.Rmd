@@ -121,6 +121,8 @@ plot(full_TC[1:nrow(full_TC), 5], ylab = "Temporal source 5", pch = 1, type = "l
 plot(full_TC[1:nrow(full_TC), 6], ylab = "Temporal source 6", pch = 1, type = "line")
 
 # Still need to answer why not norm instead of standardize
+# TC won't have same effect?!
+# Online says standardise if we know dist - gauss
 ```
 
 ```{r}
@@ -390,20 +392,19 @@ nsrcs = 6
 V = x1 * x2
 i = 1
 j = 1
+step <- 1/(norm(full_TC %*% t(full_TC)) * 1.1)
+
 for (num in seq(0,1,0.05)) {
-  
-  step <- 1/(norm(full_TC %*% t(full_TC)) * 1.1)
-  thr <- num*N*step
-  Ao <- matrix(0, nsrcs, 1)
-  A <- matrix(0, nsrcs, 1)
-  Alr <- matrix(0, nsrcs, x1*x2)
   for (x_rep in noise_df) {
-    
+    thr <- num*N*step
+    Ao <- matrix(0, nsrcs, 1)
+    A <- matrix(0, nsrcs, 1)
+    Alr <- matrix(0, nsrcs, x1*x2)
     for (k in 1:(x1*x2)) {
       A <- Ao+step*(t(full_TC) %*% (x_rep[,k]-(full_TC%*%Ao)))
       A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
       
-      for (i in 1:10) {
+      for (rep in 1:10) {
         Ao <- A
         A <- Ao+step * (t(full_TC)%*%(x_rep[,k]-(full_TC%*%Ao)))
         A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
@@ -419,11 +420,36 @@ for (num in seq(0,1,0.05)) {
   i = i + 1
 }
 
+LR_avgs = rowMeans(LR_MSE)
+plot(LR_avgs)
+# Min value is 0.580 when p = 0.55, at same value it diverges
+
+# Since first index is at 0, we want the 12th value between 0 and 1 which is 0.6 
+# So we need to index the 13th value
+index = which.min(LR_avgs)
+rho = (index - 1) * 0.05
 ```
 
 ```{r}
-qwe
-qwe[(3 <= qwe) & (qwe <= 7)]
+# 2d
+
+thr <- rho*N*step
+Ao <- matrix(0, nsrcs, 1)
+A <- matrix(0, nsrcs, 1)
+Alr <- matrix(0, nsrcs, x1*x2)
+for (k in 1:(x1*x2)) {
+  A <- Ao+step*(t(full_TC) %*% (scaled_X[,k]-(full_TC%*%Ao)))
+  A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
+  
+  for (rep in 1:10) {
+    Ao <- A
+    A <- Ao+step * (t(full_TC)%*%(scaled_X[,k]-(full_TC%*%Ao)))
+    A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
+  }
+  
+  Alr[,k] <- A
+}
+Dlr = scaled_X %*% t(Alr)
 
 ```
 
