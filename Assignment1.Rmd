@@ -324,9 +324,6 @@ min(MSE[2:nrow(MSE), 2])
 cv <- cv.glmnet(as.matrix(full_TC), as.matrix(scaled_X), alpha = 0)
 #
 
-
-
-
 D_RR = scaled_X%*% t(A_RR)
 RR_corr = cor(D_RR, full_TC)
 LSR_corr = cor(D_LSR, full_TC)
@@ -385,19 +382,23 @@ noise_df = list(noise_1, noise_9, noise_8, noise_7, noise_6, noise_5,
 
 ```{r}
 #2c
-LR_MSE = matrix(NA, 10, 21)
+LR_MSE = matrix(NA, 21, 10)
 N = 240
 x1 = 21
 x2 = 21
 nsrcs = 6
-
+V = x1 * x2
+i = 1
+j = 1
 for (num in seq(0,1,0.05)) {
+  
   step <- 1/(norm(full_TC %*% t(full_TC)) * 1.1)
   thr <- num*N*step
   Ao <- matrix(0, nsrcs, 1)
   A <- matrix(0, nsrcs, 1)
   Alr <- matrix(0, nsrcs, x1*x2)
   for (x_rep in noise_df) {
+    
     for (k in 1:(x1*x2)) {
       A <- Ao+step*(t(full_TC) %*% (x_rep[,k]-(full_TC%*%Ao)))
       A <- (1/(1+thr)) * (sign(A)*pmax(replicate(nsrcs, 0), abs(A)-thr))
@@ -410,14 +411,14 @@ for (num in seq(0,1,0.05)) {
       
       Alr[,k] <- A
     }
-    MSE(kk,rr) = sum(sum((Y=Dlr*Alr).ˆ2))/(N*V)
+    Dlr = x_rep %*% t(Alr)
+    LR_MSE[i,j] = sum(sum((x_rep-Dlr%*%Alr)^2)) / (N*V)
+    j = j + 1
+  }
+  j = 1
+  i = i + 1
 }
 
-
-
-
-
-}
 ```
 
 ```{r}
