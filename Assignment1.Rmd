@@ -105,8 +105,15 @@ full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, stand
 #full_TC2 = matrix(c(TC1, TC2, TC3, TC4, TC5, TC6), 240, 6)
 #full_TC2 = scale(full_TC)
 
+normalised_TC1 = sqrt(sum(TC1^2))
+normalised_TC2 = sqrt(sum(TC2^2))
+normalised_TC3 = sqrt(sum(TC3^2))
+normalised_TC4 = sqrt(sum(TC4^2))
+normalised_TC5 = sqrt(sum(TC5^2))
+normalised_TC6 = sqrt(sum(TC6^2))
 
-
+TC1 / normalised_TC1
+TC6 / normalised_TC6
 ```
 
 
@@ -123,6 +130,9 @@ plot(full_TC[1:nrow(full_TC), 6], ylab = "Temporal source 6", pch = 1, type = "l
 # Still need to answer why not norm instead of standardize
 # TC won't have same effect?!
 # Online says standardise if we know dist - gauss
+# If we normalise, the values of TC will be same where as standardised values 
+# Are not the same inter TC
+# Also creates 0 values still
 ```
 
 ```{r}
@@ -169,6 +179,7 @@ create_df = function(vert_start,vert_end, horo_start, horo_end) {
   df1$data = (column)
   return(df1)
 }
+
 plot1 = create_df(2, 6, 2, 6)
 plot2 = create_df(2, 6, 15, 19)
 plot3 = create_df(8, 13, 2, 6)
@@ -200,7 +211,6 @@ ggplot(plot6, aes(Var1, Var2, fill= data)) +
   geom_tile() + scale_fill_gradient(low="blue", high="red") +
   theme_ipsum()
 
-
 ```
 ```{r}
 # 1c
@@ -217,7 +227,9 @@ correlation2 = cor(t(tmpSM))
 corrplot.mixed(correlation2, upper = "number")
 correlation2
 # Are theres SM all independent? - yes as not correlated
-# Why standardisation not important - imagine one slice is 5 pixels and another 1pixel
+# Why standardisation not important - If we are looking to replicate it then 
+# We still just have two main areas - zero and non zero so the scale of non 0
+# Doesn't matter as much
 ```
 
 
@@ -243,8 +255,8 @@ hist(noise_s)
 hist(noise_t)
 
 # Both are equal to 1 even with formula variance = 1.96sd, noise_s = 0.945 so pre close, noise_t slight less 0.936 makes sense with graph
-length(noise_s[(0 - 2*sqrt(0.15) <= noise_s) & (noise_s <= 0 + 2*sqrt(0.15))]) / length(noise_s)
-length(noise_t[(0 - 2*sqrt(0.25) <= noise_t) & (noise_t <= 0 + 2*sqrt(0.25))]) / length(noise_t)
+#length(noise_s[(0 - 2*sqrt(0.15) <= noise_s) & (noise_s <= 0 + 2*sqrt(0.15))]) / length(noise_s)
+#length(noise_t[(0 - 2*sqrt(0.25) <= noise_t) & (noise_t <= 0 + 2*sqrt(0.25))]) / length(noise_t)
 
 # noise s looks way more normally distributed, while t looks kinda skewed.
 # do conf int to normal dist
@@ -303,6 +315,26 @@ plot(D_LSR[1:nrow(D_LSR), 3], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column
 # No linear relo
 plot(D_LSR[1:nrow(D_LSR), 4], scaled_X[1:nrow(scaled_X), 30], xlab = "3rd column of D(LSR)", ylab = "30th column of scaled X")
 ```
+```{r}
+# Gets the sum of the maximum absolute values in the correlation matrix
+max_abs_corr_sum = function(mat1, mat2) {
+  corre_mat = cor(mat1, mat2)
+  c = get_max_correlations(corre_mat)
+  return(sum(c))
+}
+
+# Returns the values of the maximum absolute values for each row
+get_max_correlations = function(cor_mat) {
+  c_var = c(rep(0,6))
+  abs_mat = abs(cor_mat)
+  cols = max.col(abs_mat)
+  
+  for (i in 1:6) {
+    c_var[i] = cor_mat[i, cols[i]]
+  }
+  return(c_var)
+}
+```
 
 
 ```{r}
@@ -331,10 +363,13 @@ RR_corr = cor(D_RR, full_TC)
 LSR_corr = cor(D_LSR, full_TC)
 
 # Upon inspection, largest aboslute correlations are the diagonal values
-max.col(RR_corr)
-max.col(LSR_corr)
-c_tlsr = sum(abs(diag(LSR_corr)))
-c_trr = sum(abs(diag(RR_corr)))
+max.col(abs(RR_corr))
+max.col(abs(LSR_corr))
+
+
+c_tlsr = max_abs_corr_sum(full_TC, D_LSR)
+c_trr = max_abs_corr_sum(full_TC, D_RR)
+
 
 c_trr - c_tlsr
 
@@ -450,7 +485,31 @@ for (k in 1:(x1*x2)) {
   Alr[,k] <- A
 }
 Dlr = scaled_X %*% t(Alr)
+```
 
+```{r}
+ctrr = max_abs_corr_sum(full_TC, D_RR)
+csrr = max_abs_corr_sum(t(tmpSM), t(A_RR))
+ctlr = max_abs_corr_sum(full_TC, Dlr)
+cslr= max_abs_corr_sum(t(tmpSM), t(Alr))
+
+# Both are true
+ctlr - ctrr
+cslr - csrr
+```
+```{r}
+plot(D_RR, A_RR)
+line(Dlr, Alr)
+```
+
+```{r}
+c_tlsr = 5.658869
+c_trr = 5.662374
+
+v = c(rep(0,6))
+v[2] = 10
+sum(v)
+cols = max.col(ctrr_corr)
 ```
 
 
