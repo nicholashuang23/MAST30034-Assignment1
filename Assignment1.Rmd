@@ -12,11 +12,10 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 #install.packages("phyloseq")
 #install.packages("glmnet")
 #install.packages("randcorr")
-install.packages("hrbrthemes")
+#install.packages("hrbrthemes")
 library(randcorr)
 library(ggplot2)
 library(hrbrthemes)
-library(glmnet)
 library(Rfast)
 library(corrplot)
 ```
@@ -74,27 +73,6 @@ TC6 = create_TC(40, 25, 0)
 
 ```{r}
 # 1a
-#standardise_TC = function(TC) {
-#  TC_mean = mean(TC)
-#  TC_var = var(TC)
-#  TC1 = TC - TC_mean
-#  TC2 = TC1 / sqrt(TC_var[1])
-#  return(TC2)
-#}
-```
-
-
-
-
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
-```{r}
-# 1a
 standard_TC1 = scale(TC1)
 standard_TC2 = scale(TC2)
 standard_TC3 = scale(TC3)
@@ -102,23 +80,23 @@ standard_TC4 = scale(TC4)
 standard_TC5 = scale(TC5)
 standard_TC6 = scale(TC6)
 full_TC = matrix(c(standard_TC1, standard_TC2, standard_TC3, standard_TC4, standard_TC5, standard_TC6), 240, 6)
-#full_TC2 = matrix(c(TC1, TC2, TC3, TC4, TC5, TC6), 240, 6)
-#full_TC2 = scale(full_TC)
 
-normalised_TC1 = sqrt(sum(TC1^2))
-normalised_TC2 = sqrt(sum(TC2^2))
-normalised_TC3 = sqrt(sum(TC3^2))
-normalised_TC4 = sqrt(sum(TC4^2))
-normalised_TC5 = sqrt(sum(TC5^2))
-normalised_TC6 = sqrt(sum(TC6^2))
+#normalised_TC1 = sqrt(sum(TC1^2))
+#normalised_TC2 = sqrt(sum(TC2^2))
+#normalised_TC3 = sqrt(sum(TC3^2))
+#normalised_TC4 = sqrt(sum(TC4^2))
+#normalised_TC5 = sqrt(sum(TC5^2))
+#normalised_TC6 = sqrt(sum(TC6^2))
 
-TC1 / normalised_TC1
-TC6 / normalised_TC6
+#(TC1 / normalised_TC1)[1:50]
+#(TC5 / normalised_TC5)[1:50]
+#(TC6 / normalised_TC6)[1:50]
 ```
 
 
 ```{r}
 # 1a
+par(mfrow=c(2,3))
 
 plot(full_TC[1:nrow(full_TC), 1], ylab = "Temporal source 1", pch = 1, type = "line")
 plot(full_TC[1:nrow(full_TC), 2], ylab = "Temporal source 2", pch = 1, type = "line")
@@ -127,12 +105,11 @@ plot(full_TC[1:nrow(full_TC), 4], ylab = "Temporal source 4", pch = 1, type = "l
 plot(full_TC[1:nrow(full_TC), 5], ylab = "Temporal source 5", pch = 1, type = "line")
 plot(full_TC[1:nrow(full_TC), 6], ylab = "Temporal source 6", pch = 1, type = "line")
 
-# Still need to answer why not norm instead of standardize
-# TC won't have same effect?!
-# Online says standardise if we know dist - gauss
+
+
 # If we normalise, the values of TC will be same where as standardised values 
-# Are not the same inter TC
-# Also creates 0 values still
+# Are not the same inter TC eg
+# All TC will have 0 values still
 ```
 
 ```{r}
@@ -141,11 +118,7 @@ plot(full_TC[1:nrow(full_TC), 6], ylab = "Temporal source 6", pch = 1, type = "l
 correlation = cor(full_TC)
 corrplot.mixed(correlation, tl.srt = 0)
 
-
-#col1 = colorRampPalette(c('#7F0000', 'red', '#FF7F00', 'yellow', 'white',
-                           'cyan', '#007FFF', 'blue', '#00007F'))
-#corrplot(randcorr(6), tl.srt = 0, method = 'color', sig.level = 0.01, col = col1(10))
-
+correlation
 # Comment on if on TC correlation or not
 # 4/5, 5/6 highly correlated as size of circle is size of correlation and relatively positvely correlated
 ```
@@ -171,6 +144,7 @@ tmpSM6 = create_tmpSM(15, 19, 15, 19)
 ```
 
 ```{r}
+
 create_df = function(vert_start,vert_end, horo_start, horo_end) {
   df1 = expand.grid(seq_len(21), seq_len(21))
   tmp = matrix(0,21,21)
@@ -220,11 +194,12 @@ tmpSM3 = matrix(tmpSM3, 1, 441)
 tmpSM4 = matrix(tmpSM4, 1, 441)
 tmpSM5 = matrix(tmpSM5, 1, 441)
 tmpSM6 = matrix(tmpSM6, 1, 441)
+tmpSM = matrix(c(tmpSM1, tmpSM2, tmpSM3, tmpSM4, tmpSM5, tmpSM6), 6,441)
 tmpSM = matrix(c(tmpSM1, tmpSM2, tmpSM3, tmpSM4, tmpSM5, tmpSM6), 441, 6)
-tmpSM = t(tmpSM)
+#tmpSM = t(tmpSM)
 
 correlation2 = cor(t(tmpSM))
-corrplot.mixed(correlation2, upper = "number")
+corrplot.mixed(correlation2, upper = "circle")
 correlation2
 # Are theres SM all independent? - yes as not correlated
 # Why standardisation not important - If we are looking to replicate it then 
@@ -235,26 +210,36 @@ correlation2
 
 ```{r}
 #1d
+set.seed(30034)
 noise_t = rnorm(6 * 240, mean = 0, sd = sqrt(0.25))
 noise_s = rnorm(6 * 441, mean = 0, sd = sqrt(0.15))
 
-noise_s = matrix(noise_s, 6, 441)
-noise_t = matrix(noise_t, 240, 6)
 
+noise_s = matrix(noise_s, 6, 441)
+
+noise_t = matrix(noise_t, 240, 6)
+```
+
+
+```{r}
+# 1d
 correlation3 = cor(noise_t)
 corrplot(correlation3, tl.srt = 0)
-
 
 correlation4 = cor(t(noise_s))
 corrplot(correlation4, tl.srt = 0)
 # Check if these two above are correlated
 # Highest is like abs(0.12,0.15) so not really that strongly correlated
+```
 
 
+```{r}
+# 1d
+# Both look pretty normally distributed with over 95% of the data covered within -1.96, 1.96
 hist(noise_s)
 hist(noise_t)
 
-# Both are equal to 1 even with formula variance = 1.96sd, noise_s = 0.945 so pre close, noise_t slight less 0.936 makes sense with graph
+  # Both are equal to 1 even with formula variance = 1.96sd, noise_s = 0.945 so pre close, noise_t slight less 0.936 makes sense with graph
 #length(noise_s[(0 - 2*sqrt(0.15) <= noise_s) & (noise_s <= 0 + 2*sqrt(0.15))]) / length(noise_s)
 #length(noise_t[(0 - 2*sqrt(0.25) <= noise_t) & (noise_t <= 0 + 2*sqrt(0.25))]) / length(noise_t)
 
@@ -264,31 +249,77 @@ hist(noise_t)
 
 correlation5 = cor(noise_t %*% noise_s)
 #corrplot(correlation5, tl.srt = 0)
-correlation5[1:10, 1:10]
+subset = correlation5[1:10, 1:10]
+corrplot(subset, tl.srt = 0)
+subset
+#corrplot(correlation5, tl.srt = 0)[1:10, 1:10]
 # Definitely some correlation eg higher covariance values such as 0.7
-# Check if correlated across 441
+
 ```
+
+
 ```{r}
 #1e
 
 #Can full_tc%*% noise_S and vice versa exist and what happens to them as if we keep we cannot fit model?
 X = (full_TC + noise_t) %*% (tmpSM + noise_s)
-scaled_X = scale(X)
+scaled_X = matrix(NA, 240, 441)
+for (i in 1:441) {
+  scaled_X[,i] = scale(X[,i])
+}
+
 
 # Plot graph of sample Time series
 set.seed(1)
 mysample <- sample(nrow(X), 100)
 mysample
-sample = X[mysample,1:ncol(X)]
-plot(sample[1, 1:ncol(X)], type = "line")
-line(sample[2, 1:ncol(X)])
+sample = X[1:nrow(X), mysample]
 
-
-
+#for (j in 1:10) {
+#  if (j == 1) {
+#    plot(sample[1:nrow(X), (i - 1)*10 + j], type = "line")
+#  }
+#  else {
+#    if (j == 2) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'red')
+#    }
+#    
+#    if (j == 3) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'blue')
+#    }
+#    
+#    if (j == 4) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'green')
+#    }
+#    
+#    if (j == 5) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'yellow')
+#    }
+#    if (j == 6) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'darkorange')
+#    }
+#    
+#    if (j == 7) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'cyan')
+#    }
+#    if (j == 8) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'brown')
+#    }
+#    if (j == 9) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'grey')
+#    }
+#    
+#    if (j == 10) {
+#      lines(sample[1:nrow(X), (i - 1)*10 + j], col = 'beige')
+#    }
+#    
+#  }
+#  
+#}
 
 # What info does the plot of vars give
-dogy = colVars(X)
-plot(dogy)
+variances = colVars(X)
+plot(variances, type = "line")
 
 
 
@@ -296,15 +327,40 @@ plot(dogy)
 
 
 ```{r}
-#2a
+# 2a
 A_LSR = solve(t(full_TC) %*% full_TC) %*% t(full_TC) %*% scaled_X
-D_LSR = scaled_X%*% t(A_LSR)
+D_LSR = scaled_X%*% abs(t(A_LSR))
+
 
 #  Plot and heatmap together
 plot(D_LSR[1:nrow(D_LSR),1], type = "line")
 
 # produce legend for heatmap
-heatmap(matrix(A[1,1:ncol(A_LSR)], 21, 21), ncol, Colv = NA, Rowv = NA, scale="column")
+#heatmap(matrix(A[1,1:ncol(A_LSR)], 21, 21), ncol, Colv = NA, Rowv = NA, scale="column")
+
+
+
+for (num in 1:6) {
+  df = as.data.frame(matrix(rep(0, 441 * 3), 441, 3))
+  count = 1
+  col = abs(A_LSR[num,])
+  for (i in 1:21) {
+    for (j in 1:21) {
+      df[count, 1] = i
+      df[count, 2] = j
+      df[count, 3] = col[(i-1) * 21 + j]
+      count = count + 1
+    }
+    
+  }
+  ggplot(df, aes(V1, V2, fill= V3)) + 
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
+}
+
+
+
+
 
 
 # WHy linear relo bet 3rd col d_lsr and 30th of X
@@ -339,54 +395,53 @@ get_max_correlations = function(cor_mat) {
 
 ```{r}
 #2b
-lowest_total = 1000000000
-ideal_lamda = 0
 V = 441
 MSE = matrix(0, 1, 2)
 for (num in seq(from = 0, to = 1, by = 0.01)) {
   lamda = num
   lamda_hat = lamda * V
   A_RR = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * lamda_hat) %*% t(full_TC) %*% scaled_X
-  mse = (sum(scaled_X - full_TC %*% A_RR))^2 + lamda_hat * sum(A_RR^2)
+  mse = (sum((scaled_X - full_TC %*% abs(A_RR))^2)) + lamda_hat * sum(A_RR^2)
   MSE = rbind(MSE, c(lamda, mse))
 }
 
 plot(MSE[2:nrow(MSE), 1], MSE[2:nrow(MSE), 2])
-min(MSE[2:nrow(MSE), 2])
 
-# Need to find a way to choose the best lamda val
-cv <- cv.glmnet(as.matrix(full_TC), as.matrix(scaled_X), alpha = 0)
-#
-
-D_RR = scaled_X%*% t(A_RR)
-RR_corr = cor(D_RR, full_TC)
-LSR_corr = cor(D_LSR, full_TC)
-
-# Upon inspection, largest aboslute correlations are the diagonal values
-max.col(abs(RR_corr))
-max.col(abs(LSR_corr))
-
-
+# From the graph it looks like best value of lamda is 1
+A_RR = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * 1* V) %*% t(full_TC) %*% scaled_X
+D_RR = scaled_X%*% abs(t(A_RR))
 c_tlsr = max_abs_corr_sum(full_TC, D_LSR)
 c_trr = max_abs_corr_sum(full_TC, D_RR)
 
+# 4.407241
+c_tlsr
+
+# 4.47653
+c_trr
+
 
 c_trr - c_tlsr
+
+
+```
+```{r}
 
 lamda = 1000
 lamda_hat = lamda * V
 A_1000 = solve(t(full_TC) %*% full_TC + diag(nrow(t(full_TC))) * lamda_hat) %*% t(full_TC) %*% scaled_X
 
 
-# As A_LSR decrease, A_RR values decrease. But not exactly that close to 0 as some -0.32
-plot(A_1000[1:nrow(A_1000), 1], A_LSR[1:nrow(A_LSR), 1], xlab = "A_RR", ylab = "A_LSR")
+# As A_LSR decrease, A_RR values decrease
+plot(abs(A_1000[1:nrow(A_1000), 1]), abs(A_LSR[1:nrow(A_LSR), 1]), xlab = "A_RR", ylab = "A_LSR")
 
 ```
+
 ```{r}
 create_noise_matrix = function(seed) {
   set.seed(seed = seed)
   noise_t = rnorm(6 * 240, mean = 0, sd = sqrt(0.25))
   noise_s = rnorm(6 * 441, mean = 0, sd = sqrt(0.15))
+
 
   noise_s = matrix(noise_s, 6, 441)
   noise_t = matrix(noise_t, 240, 6)
@@ -447,8 +502,8 @@ for (num in seq(0,1,0.05)) {
       
       Alr[,k] <- A
     }
-    Dlr = x_rep %*% t(Alr)
-    LR_MSE[i,j] = sum(sum((x_rep-Dlr%*%Alr)^2)) / (N*V)
+    Dlr = x_rep %*% abs(t(Alr))
+    LR_MSE[i,j] = sum(sum((x_rep-Dlr%*%abs(Alr))^2)) / (N*V)
     j = j + 1
   }
   j = 1
@@ -456,7 +511,7 @@ for (num in seq(0,1,0.05)) {
 }
 
 LR_avgs = rowMeans(LR_MSE)
-plot(LR_avgs)
+plot( seq(0,1, 0.05), LR_avgs, ylab = "MSE(LR)")
 # Min value is 0.580 when p = 0.55, at same value it diverges
 
 # Since first index is at 0, we want the 12th value between 0 and 1 which is 0.6 
@@ -484,7 +539,7 @@ for (k in 1:(x1*x2)) {
   
   Alr[,k] <- A
 }
-Dlr = scaled_X %*% t(Alr)
+Dlr = scaled_X %*% abs(t(Alr))
 ```
 
 ```{r}
@@ -494,22 +549,90 @@ ctlr = max_abs_corr_sum(full_TC, Dlr)
 cslr= max_abs_corr_sum(t(tmpSM), t(Alr))
 
 # Both are true
-ctlr - ctrr
-cslr - csrr
-```
-```{r}
-plot(D_RR, A_RR)
-line(Dlr, Alr)
+ctlr - ctrr #= 0.7413487
+cslr - csrr #= 0.6595151
+ctlr #= 5.217879
+ctrr #= 4.47653
+cslr #= 2.953101
+csrr #= 2.293586
+
+plot(D_RR[, 1:4])
+plot(Dlr[, 1:4])
+plot(Alr[1:4,])
+plot(A_RR[1:4, ])
+
+par(mfrow = c(1,2))
+for (num in 1:6) {
+  plot(D_RR[, 6], type = "line")
+  plot(Dlr[, 6], type = "line")
+}
+
+
+
+df = as.data.frame(matrix(rep(0, 441 * 3), 441, 3))
+count = 1
+vec = abs(A_RR[num,])
+for (num in 1:6) {
+  for (i in 1:21) {
+    for (j in 1:21) {
+      df[count, 1] = i
+      df[count, 2] = j
+      df[count, 3] = vec[(i-1) * 21 + j]
+      count = count + 1
+    }
+  
+  }
+}
+
+df = as.data.frame(matrix(rep(0, 441 * 3), 441, 3))
+count = 1
+vec = abs(Alr[num,])
+for (num in 1:6) {
+  for (i in 1:21) {
+    for (j in 1:21) {
+      df[count, 1] = i
+      df[count, 2] = j
+      df[count, 3] = vec[(i-1) * 21 + j]
+      count = count + 1
+    }
+  
+  }
+}
+
+ggplot(df, aes(V1, V2, fill= V3)) + 
+  geom_tile() + scale_fill_gradient(low="blue", high="red") +
+  theme_ipsum()
+}
 ```
 
 ```{r}
-c_tlsr = 5.658869
-c_trr = 5.662374
+par(mfrow=c(1,2))
+# 2e
+svd(full_TC)
+plot(svd(full_TC)$d, ylab = "Eigenvalue")
+#PC 6 smallest
 
-v = c(rep(0,6))
-v[2] = 10
-sum(v)
-cols = max.col(ctrr_corr)
+plot(svd(full_TC)$u[1:240, 6])
+plot(full_TC[1:240, 6])
+
+plot(svd(full_TC)$u[1:240, 5])
+plot(full_TC[1:240, 5])
+
+plot(svd(full_TC)$u[1:240, 4])
+plot(full_TC[1:240, 4])
+
+plot(svd(full_TC)$u[1:240, 3])
+plot(full_TC[1:240, 3])
+
+plot(svd(full_TC)$u[1:240, 2])
+plot(full_TC[1:240, 2])
+
+plot(svd(full_TC)$u[1:240, 1])
+plot(full_TC[1:240, 1])
+
+
 ```
+
+
 
 
