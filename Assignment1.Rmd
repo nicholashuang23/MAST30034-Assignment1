@@ -194,9 +194,8 @@ tmpSM3 = matrix(tmpSM3, 1, 441)
 tmpSM4 = matrix(tmpSM4, 1, 441)
 tmpSM5 = matrix(tmpSM5, 1, 441)
 tmpSM6 = matrix(tmpSM6, 1, 441)
-tmpSM = matrix(c(tmpSM1, tmpSM2, tmpSM3, tmpSM4, tmpSM5, tmpSM6), 6,441)
 tmpSM = matrix(c(tmpSM1, tmpSM2, tmpSM3, tmpSM4, tmpSM5, tmpSM6), 441, 6)
-#tmpSM = t(tmpSM)
+tmpSM = t(tmpSM)
 
 correlation2 = cor(t(tmpSM))
 corrplot.mixed(correlation2, upper = "circle")
@@ -602,13 +601,13 @@ for (num in 1:6) {
 ggplot(df, aes(V1, V2, fill= V3)) + 
   geom_tile() + scale_fill_gradient(low="blue", high="red") +
   theme_ipsum()
-}
+
 ```
 
 ```{r}
 par(mfrow=c(1,2))
 # 2e
-svd(full_TC)
+#svd(full_TC)
 plot(svd(full_TC)$d, ylab = "Eigenvalue")
 #PC 6 smallest
 
